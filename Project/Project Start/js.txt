@@ -1,0 +1,126 @@
+document.addEventListener("DOMContentLoaded", function() {
+    "use strict";
+
+    // Loader 
+    const loader = document.querySelector(".loader");
+    setTimeout(function() {
+        loader.style.opacity = "0";
+        setTimeout(function() {
+            loader.style.display = "none";
+        }, 100);
+    }, 300);
+    // Tabs
+    const tabs = document.querySelectorAll(".tabheader__item"),
+        tabContent = document.querySelectorAll(".tabcontent"),
+        tabheader = document.querySelector(".tabheader__items");
+
+    function hiddenContent() {
+        tabContent.forEach(item => {
+            item.style.display = "none";
+        })
+        tabs.forEach(item => { 
+            item.classList.remove("tabheader__item_active");
+        });
+    }
+    function showContent(i = 0) {
+        tabContent[i].style.display = "block";
+        tabs[i].classList.add("tabheader__item_active");
+    }
+    hiddenContent();
+    showContent();
+
+    tabheader.addEventListener("click", (e) => {
+        const target = e.target;
+        if(target && target.classList.contains("tabheader__item")) {
+            tabs.forEach((item, i) => {
+                if(target == item) {
+                    hiddenContent();
+                    showContent(i);
+                }
+            })
+        }
+    })
+
+    // Modal;
+    const modal = document.querySelector(".modal"),
+        modalClose = document.querySelector(".modal__close"),
+        modalBtn = document.querySelectorAll("[data-modul='']");
+
+    const modalTimer = setTimeout(function() {showModal()}, 5000)
+    function showModal() {
+        modal.classList.add("show");
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+    function hiddenModal() {
+        modal.classList.remove("show")
+        modal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+        clearInterval(modalTimer);
+    }
+
+    modalBtn.forEach(item => {
+        item.addEventListener("click",  showModal);
+    });
+    modalClose.addEventListener("click", hiddenModal);
+
+    modal.addEventListener("click", (e) => {
+        if(e.target == modal) {
+            hiddenModal();
+        }
+    });
+
+    function showModalByScroll() {
+        if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            showModal();
+            window.removeEventListener("scroll", showModalByScroll)
+        }
+    }
+    window.addEventListener("scroll", showModalByScroll);
+
+    // Dinamiktarzdan contentlarni chiqorish
+
+    class CarCard{
+        constructor (src, alt, title, descr, price, parentSelector, ...classes) {
+            this.src = src;
+            this.alt = alt;
+            this.title = title;
+            this.descr = descr;
+            this.price = price;
+            this.classes = this.classes;
+            this.parent = document.querySelector(parentSelector);
+            this.transfer = 10.;
+            this.changeToUSD();
+        }
+        changeToUSD() {
+            this.price = this.price * this.transfer
+        }
+        render() {
+            const element = document.createElement("div");
+            element.innerHTML = `
+            <div class="menu__item">
+                <img src=${this.src} alt=${this.alt} />
+                <h3 class="menu__item-subtitle">${this.title}</h3>
+                <div class="menu__item-descr">${this.descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                <div class="menu__item-cost">Price:</div>
+                <div class="menu__item-total"><span>${this.price}</span> $</div>
+                </div>
+            </div>`;
+            this.parent.append("div");
+        }
+    }
+    new CarCard(
+        'img/tabs/1.jpg',
+        'car',
+        '2021 Mercedes-Benz C-Class',
+        `The 2021 Mercedes-Benz C-Class finishes in the top half of our
+        luxury small car rankings. It's powerful and upscale, but it has
+        so-so handli...`, 
+        100,
+        '.menu .container',
+        // 'red',
+        // 'black'
+      ).render();
+});
